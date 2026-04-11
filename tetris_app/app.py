@@ -46,6 +46,14 @@ BOMB_PROBABILITY = 1 / 15
 
 GAME_AREA_X = (SCREEN_WIDTH - SIDEBAR_WIDTH - GRID_WIDTH * GRID_SIZE) // 2
 GAME_AREA_Y = (SCREEN_HEIGHT - GRID_HEIGHT * GRID_SIZE) // 2
+HELD_KEY_MOVEMENTS = {
+    pygame.K_LEFT: (-1, 0),
+    pygame.K_a: (-1, 0),
+    pygame.K_RIGHT: (1, 0),
+    pygame.K_d: (1, 0),
+    pygame.K_DOWN: (0, 1),
+    pygame.K_s: (0, 1),
+}
 
 
 class Tetromino:
@@ -144,6 +152,14 @@ class Game:
             pygame.K_a: 0.0,
             pygame.K_d: 0.0,
             pygame.K_s: 0.0,
+        }
+        self.key_repeat_started = {
+            pygame.K_LEFT: False,
+            pygame.K_RIGHT: False,
+            pygame.K_DOWN: False,
+            pygame.K_a: False,
+            pygame.K_d: False,
+            pygame.K_s: False,
         }
 
         self.font = fonts.body
@@ -262,29 +278,35 @@ class Game:
             if not self.move(0, 1):
                 self.lock_piece()
 
-        for key in [pygame.K_LEFT, pygame.K_a]:
-            if self.key_states[key]:
-                self.key_timers[key] += dt
-                if self.key_timers[key] >= (self.key_delay if self.key_timers[key] == dt else self.key_interval):
-                    if self.move(-1, 0):
-                        self.key_timers[key] = 0.0
-
-        for key in [pygame.K_RIGHT, pygame.K_d]:
-            if self.key_states[key]:
-                self.key_timers[key] += dt
-                if self.key_timers[key] >= (self.key_delay if self.key_timers[key] == dt else self.key_interval):
-                    if self.move(1, 0):
-                        self.key_timers[key] = 0.0
-
-        for key in [pygame.K_DOWN, pygame.K_s]:
-            if self.key_states[key]:
-                self.key_timers[key] += dt
-                if self.key_timers[key] >= (self.key_delay if self.key_timers[key] == dt else self.key_interval):
-                    if self.move(0, 1):
-                        self.key_timers[key] = 0.0
+        for key in HELD_KEY_MOVEMENTS:
+            self._process_held_key(key, dt)
 
     def toggle_pause(self) -> None:
         self.paused = not self.paused
+
+    def set_key_state(self, key: int, is_pressed: bool) -> None:
+        if key not in self.key_states:
+            return
+
+        self.key_states[key] = is_pressed
+        self.key_timers[key] = 0.0
+        self.key_repeat_started[key] = False
+
+    def _process_held_key(self, key: int, dt: float) -> None:
+        if not self.key_states[key]:
+            return
+
+        self.key_timers[key] += dt
+        threshold = self.key_interval if self.key_repeat_started[key] else self.key_delay
+        if self.key_timers[key] < threshold:
+            return
+
+        dx, dy = HELD_KEY_MOVEMENTS[key]
+        if self.move(dx, dy):
+            self.key_timers[key] -= threshold
+            self.key_repeat_started[key] = True
+        else:
+            self.key_timers[key] = threshold
 
     def reset(self, fonts: FontBundle) -> None:
         self.__init__(fonts)
@@ -451,8 +473,7 @@ def main(max_frames: int | None = None) -> int:
                     if event.key == pygame.K_p:
                         game.toggle_pause()
                     if event.key in game.key_states:
-                        game.key_states[event.key] = True
-                        game.key_timers[event.key] = 0.0
+                        game.set_key_state(event.key, True)
                     if not game.paused and not game.game_over:
                         if event.key in (pygame.K_UP, pygame.K_w):
                             game.rotate_piece()
@@ -461,8 +482,7 @@ def main(max_frames: int | None = None) -> int:
                                 pass
                             game.lock_piece()
                 elif event.type == pygame.KEYUP and event.key in game.key_states:
-                    game.key_states[event.key] = False
-                    game.key_timers[event.key] = 0.0
+                    game.set_key_state(event.key, False)
 
             game.update(dt)
 
