@@ -32,8 +32,8 @@ test = [
 [project.urls]
 Repository = "https://github.com/yourname/tetris-main"
 
-[tool.setuptools]
-py-modules = []
+[tool.setuptools.packages.find]
+include = ["tetris_app*"]
 
 [tool.pytest.ini_options]
 addopts = "-q"
