@@ -130,13 +130,13 @@ class GameRenderer:
         panel_fill = self.theme.glass_fill_strong if strong else self.theme.glass_fill
         pygame.draw.rect(surface, fill or panel_fill, rect, border_radius=self.theme.panel_radius)
         pygame.draw.rect(surface, (*accent, 164), rect, 2, border_radius=self.theme.panel_radius)
-        highlight = pygame.Rect(rect.x + 12, rect.y + 10, rect.width - 24, max(10, rect.height // 4))
-        pygame.draw.rect(surface, self.theme.glass_edge_soft, highlight, border_radius=18)
+        highlight = pygame.Rect(rect.x + 14, rect.y + 10, rect.width - 28, 10)
+        pygame.draw.rect(surface, self.theme.glass_edge_soft, highlight, border_radius=10)
 
     def _draw_title(self, surface: pygame.Surface, fonts: FontBundle) -> None:
-        title = self._get_static_text("title", "TETRIS", fonts.title, self.theme.text)
-        subtitle = self._get_static_text("subtitle", "neon glass release build", fonts.small, self.theme.text_muted)
-        surface.blit(title, title.get_rect(center=(self.layout.title_badge.centerx, self.layout.title_badge.centery - 6)))
+        title = self._get_static_text("title", "NEON TETRIS", fonts.body, self.theme.text)
+        subtitle = self._get_static_text("subtitle", "glass release build", fonts.small, self.theme.text_muted)
+        surface.blit(title, title.get_rect(center=(self.layout.title_badge.centerx, self.layout.title_badge.centery - 4)))
         surface.blit(subtitle, subtitle.get_rect(center=(self.layout.title_badge.centerx, self.layout.title_badge.centery + 16)))
 
     def draw_board(self, surface: pygame.Surface, state: GameState) -> None:
@@ -195,14 +195,13 @@ class GameRenderer:
             "P       Pause",
             "R       Restart",
             "",
-            "Bomb blocks clear the",
-            "8 surrounding cells.",
+            "Bombs clear 8 nearby cells.",
         ]
         for index, text in enumerate(controls):
             key = f"control-{index}"
             color = self.theme.text if text else self.theme.text_muted
             label = self._get_static_text(key, text, fonts.small, color)
-            surface.blit(label, (self.layout.controls_card.x + 18, self.layout.controls_card.y + 44 + index * 20))
+            surface.blit(label, (self.layout.controls_card.x + 18, self.layout.controls_card.y + 44 + index * 18))
 
     def draw_overlay(self, surface: pygame.Surface, state: GameState, fonts: FontBundle) -> None:
         if state.game_over:
