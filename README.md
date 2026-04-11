@@ -1,67 +1,85 @@
-# 俄罗斯方块游戏
+# Neon Glass Tetris
 
-这是一个使用Python和Pygame开发的俄罗斯方块游戏，包含基本的游戏功能和一些特色元素。
+A polished Pygame Tetris release with a neon sci-fi look, bright glassmorphism panels, bundled font assets, and a modular runtime that is ready to publish on GitHub.
 
-## 功能特性
+![Neon Glass Tetris screenshot](./screenshot.png)
 
-- 完整的俄罗斯方块游戏逻辑
-- 支持方块移动、旋转和加速下落
-- 分数系统和等级提升
-- 下一个方块预览
-- 操作说明界面
-- 特殊炸弹方块，可以清除周围的方块
-- 游戏暂停和重新开始功能
+## Highlights
 
-## 安装与运行
+- Explicit bootstrap path: importing the launcher no longer opens a Pygame window.
+- Modular architecture: runtime, game state, pieces, theme, layout, and renderer layers are split cleanly.
+- Neon glass UI: bright translucent cards, glowing blocks, and overlay states built for release presentation.
+- Bomb block mechanic: special bomb pieces clear the 8 surrounding cells.
+- Bundled typography: the repo ships with `assets/fonts/NotoSansSC-Regular.ttf` and license metadata.
+- Headless regression coverage: smoke, input timing, game-state, and render-smoke tests run under dummy SDL.
 
-### 前提条件
+## Quick Start
 
-- Python 3.x
-- Pygame库
+### Requirements
 
-### 安装依赖
+- Python 3.10+
+- Pygame 2.6.1
+
+### Install
 
 ```bash
-pip install pygame
+python -m pip install -r requirements.txt
 ```
 
-### 运行游戏
+For development and tests:
+
+```bash
+python -m pip install -e ".[test]"
+```
+
+### Run
 
 ```bash
 python 俄罗斯方块.py
 ```
 
-## 操作指南
+## Controls
 
-- **←/A**：向左移动方块
-- **→/D**：向右移动方块
-- **↑/W**：旋转方块
-- **↓/S**：加速下落
-- **空格**：直接落下
-- **P**：暂停/继续游戏
-- **R**：重新开始游戏
+- `A` / `D`: move left or right
+- `W`: rotate
+- `S`: soft drop
+- `Space`: hard drop
+- `P`: pause / resume
+- `R`: restart
 
-## 游戏特色
+## Project Structure
 
-- **炸弹方块**：随机生成的特殊方块，可以清除周围8个格子的方块
-- **等级系统**：每消除10行，等级提升，下落速度加快
-- **分数系统**：根据消除的行数获得不同的分数
-- **美观的界面**：包含游戏区域、侧边栏和操作说明
-![screenshot](./screenshot.png)
-## 项目结构
-
+```text
+.
+|-- 俄罗斯方块.py
+|-- assets/
+|   `-- fonts/
+|-- docs/
+|-- tests/
+`-- tetris_app/
+    |-- app.py
+    |-- game_state.py
+    |-- layout.py
+    |-- pieces.py
+    |-- renderers.py
+    |-- resources.py
+    `-- theme.py
 ```
-├── 俄罗斯方块.py          # 主游戏代码
-├── README.md             # 项目说明文件
-├── .gitignore            # Git忽略文件
-└── requirements.txt      # 项目依赖
+
+## Test Commands
+
+```bash
+python -m pytest -q
 ```
 
-## 开发环境
+Focused validation:
 
-- Python 3.8+
-- Pygame 2.0+
+```bash
+python -m pytest -q tests/test_smoke.py tests/test_input_repeat.py tests/test_game_state.py tests/test_render_smoke.py
+```
 
-## 作者
+## Release Notes
 
-lioluo
+- The launcher stays simple for end users, while the actual runtime lives in `tetris_app`.
+- The repo includes a release checklist in [`docs/release-checklist.md`](./docs/release-checklist.md).
+- Font licensing details live in `assets/fonts/README.md` and `assets/fonts/OFL.txt`.
