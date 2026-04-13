@@ -1,6 +1,6 @@
 # Wooden Tetris
 
-一个采用原木自然风格界面的 Pygame 俄罗斯方块项目，带有木纹面板、暖色配色、内置字体资源，以及适合发布到 GitHub 的启动与测试配置。
+一个采用原木自然风格界面的 Pygame 俄罗斯方块项目，带有木纹面板、暖色配色。
 
 A Pygame Tetris project with a warm wooden aesthetic, wood-grain panels, bundled font assets, and GitHub-friendly launch and test setup.
 
