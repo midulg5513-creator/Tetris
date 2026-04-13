@@ -14,7 +14,6 @@ A Pygame Tetris project with a warm wooden aesthetic, wood-grain panels, bundled
 - ASCII 启动入口：`main.py` 是终端、命令行和 GitHub 文档中的主启动方式。
 - 支持模块启动：可以直接在仓库根目录运行 `python -m tetris_app`。
 - 模块化结构清晰：运行时、游戏状态、方块定义、主题、布局和渲染分层明确。
-- 炸弹方块机制：特殊炸弹方块会清除周围 8 个格子。
 - 自带字体资源：仓库内包含 `assets/fonts/NotoSansSC-Regular.ttf` 及授权文件。
 - 支持无头回归测试：在 dummy SDL 环境下运行 smoke、输入节奏、状态逻辑和渲染测试。
 - 已配置 GitHub CI：`.github/workflows/ci.yml` 会在 push 和 pull request 时自动校验。
