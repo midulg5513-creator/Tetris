@@ -11,9 +11,9 @@ from .theme import build_theme
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-GRID_SIZE = 30
-SIDEBAR_WIDTH = 220
-WINDOW_CAPTION = "Neon Tetris"
+GRID_SIZE = 26
+SIDEBAR_WIDTH = 236
+WINDOW_CAPTION = "Wooden Tetris"
 
 KEY_TO_ACTION = {
     pygame.K_LEFT: "left",
@@ -55,7 +55,7 @@ def main(max_frames: int | None = None) -> int:
                     elif event.key == pygame.K_p:
                         state.toggle_pause()
                     elif event.key in KEY_TO_ACTION:
-                        state.set_hold(KEY_TO_ACTION[event.key], True)
+                        state.press_action(KEY_TO_ACTION[event.key])
                     elif not state.paused and not state.game_over and event.key in (pygame.K_UP, pygame.K_w):
                         state.rotate_current()
                     elif not state.paused and not state.game_over and event.key == pygame.K_SPACE:

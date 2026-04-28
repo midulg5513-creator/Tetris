@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import random
 
-from .pieces import BOMB_INDEX, Tetromino
+from .pieces import Tetromino
 
 
 GRID_WIDTH = 10
@@ -44,9 +44,6 @@ class GameState:
         self.fall_speed = 0.5
         self.fall_time = 0.0
         self.paused = False
-        self.explosion_active = False
-        self.explosion_time = 0.0
-        self.explosion_positions: list[tuple[int, int]] = []
 
         for tracker in self.repeat_trackers.values():
             tracker.held = False
@@ -92,13 +89,7 @@ class GameState:
         return True
 
     def rotate_current(self) -> None:
-        if self.current_piece.shape_index == BOMB_INDEX:
-            return
-
         rotated_shape = self.current_piece.rotated_shape()
-        if rotated_shape is None:
-            return
-
         if not self.check_collision(self.current_piece, shape=rotated_shape):
             self.current_piece.shape = rotated_shape
             return
@@ -109,28 +100,7 @@ class GameState:
                 self.current_piece.shape = rotated_shape
                 return
 
-    def explode_bomb(self, x: int, y: int) -> None:
-        self.explosion_positions = []
-        for offset_x in (-1, 0, 1):
-            for offset_y in (-1, 0, 1):
-                if offset_x == 0 and offset_y == 0:
-                    continue
-
-                grid_x = x + offset_x
-                grid_y = y + offset_y
-                if 0 <= grid_x < GRID_WIDTH and 0 <= grid_y < GRID_HEIGHT:
-                    self.grid[grid_y][grid_x] = None
-                    self.explosion_positions.append((grid_x, grid_y))
-
-        self.explosion_active = True
-        self.explosion_time = 0.0
-
     def lock_piece(self) -> None:
-        if self.current_piece.shape_index == BOMB_INDEX:
-            self.explode_bomb(self.current_piece.x, self.current_piece.y)
-            self.new_piece()
-            return
-
         for row_index, row in enumerate(self.current_piece.shape):
             for col_index, cell in enumerate(row):
                 if not cell:
@@ -143,16 +113,14 @@ class GameState:
         self.new_piece()
 
     def clear_lines(self) -> None:
-        lines_to_clear = [row_index for row_index, row in enumerate(self.grid) if all(row)]
-        for row_index in reversed(lines_to_clear):
-            del self.grid[row_index]
-            self.grid.insert(0, [None for _ in range(GRID_WIDTH)])
-
-        if not lines_to_clear:
+        remaining_rows = [row for row in self.grid if not all(row)]
+        cleared_count = GRID_HEIGHT - len(remaining_rows)
+        if cleared_count == 0:
             return
 
-        self.lines_cleared += len(lines_to_clear)
-        self.score += (1, 2, 5, 10)[min(len(lines_to_clear) - 1, 3)] * 100 * self.level
+        self.grid = [[None for _ in range(GRID_WIDTH)] for _ in range(cleared_count)] + remaining_rows
+        self.lines_cleared += cleared_count
+        self.score += (1, 2, 5, 10)[min(cleared_count - 1, 3)] * 100 * self.level
         self.level = self.lines_cleared // 10 + 1
         self.fall_speed = max(0.05, 0.5 - ((self.level - 1) * 0.05))
 
@@ -163,6 +131,21 @@ class GameState:
 
     def toggle_pause(self) -> None:
         self.paused = not self.paused
+
+    def press_action(self, action: str) -> bool:
+        tracker = self.repeat_trackers.get(action)
+        if tracker is None:
+            return False
+
+        if self.game_over or self.paused:
+            return False
+
+        tracker.held = True
+        tracker.elapsed = 0.0
+        tracker.repeating = False
+
+        dx, dy = MOVE_ACTIONS[action]
+        return self.move_current(dx, dy)
 
     def set_hold(self, action: str, is_pressed: bool) -> None:
         tracker = self.repeat_trackers.get(action)
@@ -179,29 +162,26 @@ class GameState:
             return
 
         tracker.elapsed += dt
-        threshold = self.key_interval if tracker.repeating else self.key_delay
-        if tracker.elapsed < threshold:
-            return
-
         dx, dy = MOVE_ACTIONS[action]
-        self.move_current(dx, dy)
-        tracker.elapsed = 0.0
-        tracker.repeating = True
+        threshold = self.key_interval if tracker.repeating else self.key_delay
+        while tracker.elapsed >= threshold:
+            self.move_current(dx, dy)
+            tracker.elapsed -= threshold
+            tracker.repeating = True
+            threshold = self.key_interval
 
     def update(self, dt: float) -> None:
         if self.game_over or self.paused:
             return
 
-        if self.explosion_active:
-            self.explosion_time += dt
-            if self.explosion_time >= 0.5:
-                self.explosion_active = False
+        for action in MOVE_ACTIONS:
+            self._process_held_action(action, dt)
 
         self.fall_time += dt
         if self.fall_time >= self.fall_speed:
-            self.fall_time = 0.0
-            if not self.move_current(0, 1):
-                self.lock_piece()
-
-        for action in MOVE_ACTIONS:
-            self._process_held_action(action, dt)
+            while self.fall_time >= self.fall_speed:
+                self.fall_time -= self.fall_speed
+                if not self.move_current(0, 1):
+                    self.fall_time = 0.0
+                    self.lock_piece()
+                    break

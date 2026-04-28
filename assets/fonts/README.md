@@ -2,14 +2,15 @@
 
 ## NotoSansSC-Regular.ttf
 
-- Family: Noto Sans SC
-- Intended usage: bundled Chinese-capable UI font for the Tetris sidebar, overlays, and title text
+- Family label: `Noto Sans SC`
 - Local filename: `NotoSansSC-Regular.ttf`
-- Source mirror used in this repository: `https://github.com/jsntn/webfonts/blob/master/NotoSansSC-Regular.ttf`
-- Original upstream family and license source: Noto CJK Sans project from `notofonts/noto-cjk`
-- Upstream license file copied into this directory as `OFL.txt`
+- License shipped with this repository: `SIL Open Font License 1.1` in `OFL.txt`
+- Official family/license references:
+  - `https://notofonts.github.io/noto-docs/website/use/`
+  - `https://github.com/notofonts/noto-cjk`
 
-## Notes
+## Release Note
 
-- The project bundles the font so GitHub users do not depend on Windows-specific system fonts for correct Chinese glyph rendering.
-- Later runtime code should resolve this bundled asset first and only fall back to system fonts if the asset is unavailable.
+- The Noto project documents that Noto fonts are licensed under the Open Font License and may be bundled with software, including commercial projects, as long as the license conditions are followed.
+- This repository currently ships a local copy under the `Noto Sans SC` name together with `OFL.txt`.
+- For the cleanest public-release provenance trail, prefer replacing the bundled binary with a copy downloaded directly from the official Noto project before publishing a release.

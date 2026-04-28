@@ -118,6 +118,7 @@ dmypy.json
 
 # IDE
 .idea/
+.project-surgeon/
 
 # OS generated files
 Thumbs.db

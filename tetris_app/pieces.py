@@ -14,22 +14,17 @@ PIECE_SHAPES = (
     ((0, 0, 1), (1, 1, 1)),
     ((0, 1, 1), (1, 1, 0)),
     ((1, 1, 0), (0, 1, 1)),
-    ((1,),),
 )
 
 PIECE_COLORS: tuple[Color, ...] = (
-    (0, 255, 255),
-    (255, 255, 0),
-    (180, 0, 255),
-    (255, 165, 0),
-    (0, 120, 255),
-    (0, 255, 0),
-    (255, 0, 0),
-    (255, 100, 0),
+    (214, 178, 127),
+    (230, 196, 132),
+    (198, 156, 116),
+    (185, 133, 89),
+    (171, 127, 92),
+    (206, 166, 114),
+    (160, 108, 79),
 )
-
-BOMB_INDEX = 7
-BOMB_PROBABILITY = 1 / 15
 
 
 def clone_shape(shape: tuple[tuple[int, ...], ...] | list[list[int]]) -> list[list[int]]:
@@ -56,16 +51,9 @@ class Tetromino:
 
     @classmethod
     def spawn(cls, grid_width: int, rng: random.Random) -> "Tetromino":
-        if rng.random() < BOMB_PROBABILITY:
-            shape_index = BOMB_INDEX
-        else:
-            shape_index = rng.randint(0, BOMB_INDEX - 1)
-
+        shape_index = rng.randint(0, len(PIECE_SHAPES) - 1)
         shape = clone_shape(PIECE_SHAPES[shape_index])
-        if shape_index == BOMB_INDEX:
-            x = grid_width // 2
-        else:
-            x = grid_width // 2 - len(shape[0]) // 2
+        x = grid_width // 2 - len(shape[0]) // 2
 
         return cls(
             shape_index=shape_index,
@@ -75,9 +63,7 @@ class Tetromino:
             y=0,
         )
 
-    def rotated_shape(self) -> list[list[int]] | None:
-        if self.shape_index == BOMB_INDEX:
-            return None
+    def rotated_shape(self) -> list[list[int]]:
         return rotate_shape(self.shape)
 
     def clone(self) -> "Tetromino":

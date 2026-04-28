@@ -14,7 +14,7 @@ def load_launcher_module():
     if str(ROOT) not in sys.path:
         sys.path.insert(0, str(ROOT))
 
-    launcher = ROOT / "俄罗斯方块.py"
+    launcher = ROOT / "main.py"
     spec = importlib.util.spec_from_file_location("tetris_launcher", launcher)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
@@ -33,7 +33,7 @@ def test_launcher_import_is_side_effect_free_and_bootstrap_runs():
 
     app.pygame.font.init()
     font = app.pygame.font.Font(str(FONT_PATH), 24)
-    surface = font.render("测试", True, (255, 255, 255))
+    surface = font.render("Test", True, (255, 255, 255))
     assert surface.get_width() > 0
 
     app.pygame.quit()

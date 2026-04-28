@@ -16,6 +16,9 @@ def make_piece(shape_index: int = 0, x: int = 0, y: int = 0) -> Tetromino:
 
 def test_clear_lines_updates_score_and_level_progression():
     state = GameState(random.Random(0))
+    anchor_row = [None for _ in range(GRID_WIDTH)]
+    anchor_row[0] = PIECE_COLORS[2]
+    state.grid[-3] = anchor_row
     state.grid[-1] = [PIECE_COLORS[0] for _ in range(GRID_WIDTH)]
     state.grid[-2] = [PIECE_COLORS[1] for _ in range(GRID_WIDTH)]
 
@@ -26,6 +29,8 @@ def test_clear_lines_updates_score_and_level_progression():
     assert state.level == 1
     assert all(cell is None for cell in state.grid[0])
     assert all(cell is None for cell in state.grid[1])
+    assert state.grid[-1] == anchor_row
+    assert not any(all(row) for row in state.grid)
 
 
 def test_collision_checks_board_edges():
@@ -40,23 +45,17 @@ def test_collision_checks_board_edges():
     assert state.check_collision(floor_piece, dy=1)
 
 
-def test_bomb_explosion_clears_surrounding_cells_only():
-    state = GameState(random.Random(0))
-    center_x = 5
-    center_y = 5
+def test_spawned_pieces_are_standard_tetrominoes_only():
+    random_source = random.Random(0)
+    state = GameState(random_source)
 
-    for grid_y in range(center_y - 1, center_y + 2):
-        for grid_x in range(center_x - 1, center_x + 2):
-            state.grid[grid_y][grid_x] = PIECE_COLORS[0]
+    shape_indexes = {state.current_piece.shape_index, state.next_piece.shape_index}
+    for _ in range(64):
+        state.new_piece()
+        shape_indexes.add(state.current_piece.shape_index)
+        shape_indexes.add(state.next_piece.shape_index)
 
-    state.explode_bomb(center_x, center_y)
-
-    for grid_y in range(center_y - 1, center_y + 2):
-        for grid_x in range(center_x - 1, center_x + 2):
-            if grid_x == center_x and grid_y == center_y:
-                assert state.grid[grid_y][grid_x] == PIECE_COLORS[0]
-            else:
-                assert state.grid[grid_y][grid_x] is None
+    assert shape_indexes == set(range(len(PIECE_COLORS)))
 
 
 def test_reset_restores_core_runtime_state():

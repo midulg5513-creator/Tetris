@@ -29,9 +29,6 @@ test = [
   "pytest>=8.3,<9",
 ]
 
-[project.urls]
-Repository = "https://github.com/yourname/tetris-main"
-
 [tool.setuptools.packages.find]
 include = ["tetris_app*"]
 

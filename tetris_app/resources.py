@@ -25,6 +25,7 @@ class FontBundle:
     body: pygame.font.Font
     small: pygame.font.Font
     title: pygame.font.Font
+    tiny: pygame.font.Font | None = None
 
 
 def initialize_runtime(size: tuple[int, int], caption: str) -> pygame.Surface:
@@ -64,4 +65,5 @@ def create_font_bundle() -> FontBundle:
         body=load_font(36),
         small=load_font(24),
         title=load_font(64),
+        tiny=load_font(18),
     )

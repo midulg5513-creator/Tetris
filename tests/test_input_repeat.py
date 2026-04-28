@@ -86,3 +86,30 @@ def test_releasing_a_key_resets_repeat_state(state):
 
     state.update(0.01)
     assert state.current_piece.x == start - 2
+
+
+@pytest.mark.parametrize(
+    ("action", "axis", "delta"),
+    [
+        ("left", "x", -1),
+        ("right", "x", 1),
+        ("down", "y", 1),
+    ],
+)
+def test_press_action_moves_immediately_and_starts_hold_tracking(state, action, axis, delta):
+    start = getattr(state.current_piece, axis)
+
+    moved = state.press_action(action)
+
+    assert moved
+    assert getattr(state.current_piece, axis) == start + delta
+    assert state.repeat_trackers[action].held
+
+
+def test_held_repeat_consumes_large_elapsed_frame_without_missing_steps(state):
+    start = state.current_piece.x
+
+    state.set_hold("right", True)
+    state.update(state.key_delay + (state.key_interval * 2))
+
+    assert state.current_piece.x == start + 3
